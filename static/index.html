@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+        <style>
+            .container-column {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            .container-buttons {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+            }
+            button {
+                background: rgba(255, 255, 255, 0); 
+                border: none; 
+                outline: none;
+            }
+            button:hover{
+                background: rgba(14, 230, 43, 0.2);
+            }
+        </style>
+    </head>
+    
+    <body>
+        <audio id="chericherilady" style="display: none"></audio>
+        <audio id="stereolove" style="display: none"></audio>
+        <audio id="flyday" style="display: none"></audio>
+
+        <div class="container-column">
+            <img src="dancin.gif" height="592" width="640" style="margin-bottom: 10px; margin-top: 10px;" alt="Почему-то гифка не прогрузилась">
+            <div class="container-buttons">
+                <button id="formerButton">
+                    <i style="font-size: xx-large;" class="bi bi-caret-left-fill"></i>
+                </button>
+                <button id="pauseButton">
+                    <i style="font-size: xx-large;" class="bi bi-pause-fill"></i>
+                </button>
+                <button id="nextButton">
+                    <i style="font-size: xx-large;" class="bi bi-caret-right-fill"></i>
+                </button>
+            </div>
+        </div>
+
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var audio_cheri = document.getElementById('chericherilady');
+                var audio_stereo = document.getElementById('stereolove');
+                var audio_flyday = document.getElementById('flyday');
+                var cur_audio = audio_cheri
+
+                if (Hls.isSupported()) {
+                    
+                    function start_audio(audio_next) {
+                        cur_audio.pause()
+                        audio_next.currentTime = 0
+                        audio_next.play()
+                        cur_audio = audio_next
+                    }
+
+                    var hls_cheri = new Hls({maxBufferLength: 300});
+                    var hls_stereo = new Hls({maxBufferLength: 300});
+                    var hls_flyday = new Hls({maxBufferLength: 300});
+
+                    hls_cheri.loadSource("audio/chericherilady.m3u8");
+                    hls_stereo.loadSource("audio/stereolove.m3u8");
+                    hls_flyday.loadSource("audio/flyday.m3u8");
+
+                    hls_cheri.attachMedia(audio_cheri);
+                    hls_stereo.attachMedia(audio_stereo);
+                    hls_flyday.attachMedia(audio_flyday);
+                    
+                    audio_cheri.addEventListener('ended', function() {
+                        start_audio(audio_stereo)
+                    });
+                    audio_stereo.addEventListener('ended', function() {
+                        start_audio(audio_flyday)
+                    });
+                    audio_flyday.addEventListener('ended', function() {
+                        start_audio(audio_cheri)
+                    });
+
+                    pauseBtn = document.getElementById("pauseButton")
+                    pauseBtn.addEventListener("click", function(){
+                        if (cur_audio.paused) {
+                            cur_audio.play()
+                        } else {
+                            cur_audio.pause()
+                        }
+                    })
+
+                    nextBtn = document.getElementById("nextButton")
+                    nextBtn.addEventListener("click", function(){
+                        if (cur_audio === audio_cheri) {
+                            start_audio(audio_stereo)
+                        } else if (cur_audio === audio_stereo) {
+                            start_audio(audio_flyday)
+                        } else start_audio(audio_cheri)
+                    })
+
+                    formerBtn = document.getElementById("formerButton")
+                    formerBtn.addEventListener("click", function(){
+                        if (cur_audio === audio_cheri) {
+                            start_audio(audio_flyday)
+                        } else if (cur_audio === audio_stereo) {
+                            start_audio(audio_cheri)
+                        } else start_audio(audio_stereo)
+                    })
+                }
+            });
+        </script>
+    
+    </body>
+</html>
